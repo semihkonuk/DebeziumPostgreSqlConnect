@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DebeziumKafka.Consumer": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

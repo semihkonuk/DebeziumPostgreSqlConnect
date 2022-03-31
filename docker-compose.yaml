@@ -1,0 +1,54 @@
+version: "3.8"
+services:
+  postgres:
+    image: debezium/postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: example
+      POSTGRES_USER: example
+      POSTGRES_DB: ExampleDb
+    volumes:
+      - ./postgres:/data/postgres
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka
+    depends_on:
+      - zookeeper
+      - postgres
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_BROKER_ID: 1
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+  connector:
+    image: debezium/connect:latest
+    ports:
+      - "8083:8083"
+    environment:
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      BOOTSTRAP_SERVERS: kafka:9092
+    depends_on:
+      - zookeeper
+      - postgres
+      - kafka
+  consoleapp:
+    image: ${DOCKER_REGISTRY-}consumer-app
+    build:
+      context: .
+      dockerfile: src/DebeziumKafka.Consumer/Dockerfile
+    depends_on:
+      - zookeeper
+      - kafka

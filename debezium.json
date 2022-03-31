@@ -1,0 +1,14 @@
+{
+    "name": "exampledb-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+        "tasks.max": "1",
+        "database.hostname": "postgres",
+        "database.port": "5432",
+        "database.user": "example",
+        "database.password": "example",
+        "database.dbname": "ExampleDb",
+        "database.server.name": "postgres",
+        "table.include.list": "public.employee"
+    }
+}
